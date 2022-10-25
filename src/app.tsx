@@ -77,10 +77,10 @@ const Weather = ({ options }: WeatherProps) => {
         <>
             {wd && <div className={classes.weatherCard}>
                 <div className={classes.weatherLeft}>
-                    <div><img src={`/icons/${wd.condition}.svg`} alt={`graphic showing condition ${wd.conditionName} for today's weather`} /></div>
+                    <img src={`/icons/${wd.condition}.svg`} alt={`graphic showing condition ${wd.conditionName} for today's weather`} />
                     <div>
-                        <div>{wd.temperature}°{wd.unit}</div>
-                        <div>{wd.conditionName}</div>
+                        <div>{wd.temperature}°{wd.unit.toUpperCase()}</div>
+                        <div className={classes.weatherName}>{wd.conditionName}</div>
                     </div>
                 </div>
                 <div className={classes.weatherRight}>
@@ -105,9 +105,19 @@ type ButtonProps = {
     setVariable: (a0: string, a1: string) => void
 }
 const Button = ({ options, setVariable }: ButtonProps) => {
+    const getSvg = () => {
+        if (options.variable === 'location'){
+            return <img src={`/icons/arrow-up.svg`} alt={`Pindrop graphic`}/>
+        }
+        if (options.value === 'show') {
+            return <img src={`/icons/add-box.svg`} alt={`Show graphic`}/>
+        }
+        return <img src={`/icons/clock.svg`} alt={`Hide graphic`}/>
+    }
     return (
         <div className={classes.buttonCard} onClick={() => { setVariable(options.variable, options.value) }}>
-            {options.text}
+            <div>{options.text}</div>
+            <div>{getSvg()}</div>
         </div>
     )
 }

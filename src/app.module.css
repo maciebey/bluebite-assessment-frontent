@@ -5,21 +5,29 @@
 }
 
 .appCard {
-  width: 400px;
-  margin: 0 0 20px 0;
+  width: 360px;
+  height: 120px;
+  margin: 20px 0 0 0;
   border-radius: 30px;
   overflow: hidden;
   flex: 1 0 auto;
   background-color: #2e71f0;
-  
-}
-
-.appCard > img {
-  width: 100%;
+  padding: 20px;
+  border: 1px solid #dfdfdf;
 }
 
 .imageCard {
   composes: appCard;
+  width: 400px;
+  height: 160px;
+  padding: 0;
+  position: relative;
+}
+
+.imageCard > img {
+  width: 100%;
+  bottom: 0;
+  position: absolute;
 }
 
 .weatherCard {
@@ -32,9 +40,29 @@
   display: flex;
   flex: 1;
 }
+.weatherLeft {
+  width: 100px;
+  height: 100px;
+  font-size: xx-large;
+}
+
+.weatherName {
+  font-size: small;
+}
+.weatherRight {
+  display: flex;
+  flex-direction: column;
+  text-align: end;
+  font-size: small;
+}
+.weatherRight > div:first-child {
+  flex: 1 0 auto;
+}
+
 .weatherUpcoming {
   display: flex;
   flex: 1;
+  text-align: center;
 }
 .weatherUpcoming img {
   width: 40px
@@ -43,6 +71,19 @@
 .buttonCard {
   composes: appCard;
   background-color: #2e71f0;
+  color: white;
+  font-size: x-large;
+  display: flex;
+  flex-direction: column;
+}
+
+.buttonCard > div:first-child {
+  flex: 1 0 auto;
+}
+
+.buttonCard > div:nth-child(2) {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .conditionContainer {
