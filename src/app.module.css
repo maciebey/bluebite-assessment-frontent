@@ -10,7 +10,8 @@
   border-radius: 30px;
   overflow: hidden;
   flex: 1 0 auto;
-  background-color: white;
+  background-color: #2e71f0;
+  
 }
 
 .appCard > img {
@@ -24,6 +25,7 @@
 .weatherCard {
   composes: appCard;
   display: flex;
+  background-color: white;
 }
 
 .weatherLeft {
@@ -36,4 +38,18 @@
 }
 .weatherUpcoming img {
   width: 40px
+}
+
+.buttonCard {
+  composes: appCard;
+  background-color: #2e71f0;
+}
+
+.conditionContainer {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.hide {
+  display: none;
 }

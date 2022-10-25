@@ -1,4 +1,4 @@
-import React, { Children, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router';
 
@@ -70,15 +70,14 @@ const Weather = ({ options }: WeatherProps) => {
         axios.get(`${serverBaseUrl}/integration/weather?lat=${options.lat}&lon=${options.lon}`)
             .then((resp) => {
                 const weatherData: weatherData = resp.data.data;
-                console.log(weatherData)
                 setWd(weatherData)
             })
-    }, [])
+    }, [options.lat, options.lon])
     return (
         <>
             {wd && <div className={classes.weatherCard}>
                 <div className={classes.weatherLeft}>
-                    <div><img src={`/icons/${wd.condition}.svg`} /></div>
+                    <div><img src={`/icons/${wd.condition}.svg`} alt={`graphic showing condition ${wd.conditionName} for today's weather`} /></div>
                     <div>
                         <div>{wd.temperature}°{wd.unit}</div>
                         <div>{wd.conditionName}</div>
@@ -88,7 +87,7 @@ const Weather = ({ options }: WeatherProps) => {
                     <div>{wd.location}</div>
                     <div className={classes.weatherUpcoming}>
                         {wd.upcomming.map((upData) => <div key={upData.day}>
-                            <img src={`/icons/${upData.condition}.svg`} />
+                            <img src={`/icons/${upData.condition}.svg`} alt={`graphic showing condition ${upData.conditionName} for ${upData.day}'s weather`}/>
                             <div>{upData.day}</div>
                         </div>)}
                     </div>
@@ -107,7 +106,7 @@ type ButtonProps = {
 }
 const Button = ({ options, setVariable }: ButtonProps) => {
     return (
-        <div className={classes.imageCard} onClick={() => { setVariable(options.variable, options.value) }}>
+        <div className={classes.buttonCard} onClick={() => { setVariable(options.variable, options.value) }}>
             {options.text}
         </div>
     )
@@ -125,12 +124,12 @@ const Condition = ({ options, children, variableState }: ConditionProps) => {
     const [display, setDisplay] = useState<boolean>(false)
     useEffect(() => {
         setDisplay(variableState === options.value)
-    }, [variableState])
+    }, [variableState, options.value])
+
     return (
-        <>{display && <div className={classes.imageCard}>
-            {children}
-        </div>}
-        </>
+        <div className={`${classes.conditionContainer} + ${display ? "" : classes.hide}`}>{children}</div>
+        // <>{display && <div className={classes.conditionContainer}>{children}</div>}</>
+        // <>{display && <>{children}</>}</>
     )
 }
 
@@ -148,24 +147,21 @@ const App = () => {
     const [componentList, setComponentList] = useState<componentData[]>([]);
     const [listState, setListData] = useState<number[][]>();
 
-    const setVariable = (variable: string, value: string) => {
-        const newState = { ...variableData }
-        newState[variable] = value
-        setVariableData(newState)
-    }
-
+    // on id being set call API
     useEffect(() => {
-        console.log(classes)
         axios.get(`${serverBaseUrl}/page/${id}`)
             .then((resp) => {
-                // set up variable data
-                const varData:variableData[] = resp.data.data.variables
-                const newVarState: {[key: string]: string } = {}
-                for (const vars of varData) {
-                    newVarState[vars.name] = vars.initialValue
+                // set up variable data, if exists
+                if (resp.data.data.variables) {
+                    const varData:variableData[] = resp.data.data.variables
+                    const newVarState: {[key: string]: string } = {}
+                    for (const vars of varData) {
+                        newVarState[vars.name] = vars.initialValue
+                    }
+                    setVariableData(newVarState)
                 }
-                setVariableData(newVarState)
 
+                // set our component data to state
                 const serveCompData: componentData[] = resp.data.data.components
                 setComponentList(serveCompData)
 
@@ -175,7 +171,7 @@ const App = () => {
                 for (const list of listData) {
                     const newList = []
                     for (const compId of list.components) {
-                        newList.push(compId)//(newCompList[compId-1])
+                        newList.push(compId)
                     }
                     newListState.push(newList)
                 }
@@ -183,9 +179,21 @@ const App = () => {
             })
     }, [id])
 
+    // passed to button component so we can update variable state
+    const setVariable = (variable: string, value: string) => {
+        const newState = { ...variableData }
+        newState[variable] = value
+        setVariableData(newState)
+    }
+
+    // made call to get this variable as a method call to fix an issue with
+    // child prop not updating, might be a better way to do this
     const getVarValue = (varName: string) => {
         return variableData[varName]
     }
+
+    // transforms component data to actual React elements,
+    // recursively called for Condition component
     const getElements = (compIds: number[]) => {
         const res: React.ReactElement[] = []
         componentList.filter((compData) => compIds.includes(compData.id)).forEach((component) => {
@@ -209,6 +217,7 @@ const App = () => {
         return res
     }
 
+    // root components are always first element of list
     return (
         <div className={classes.root}>
             {listState && getElements(listState[0])}
